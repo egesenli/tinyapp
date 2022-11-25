@@ -27,6 +27,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//Add a second route for /urls:id
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: /* What goes here? */ };
+  res.render("urls_show", templateVars);
+});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
