@@ -29,7 +29,7 @@ app.get("/urls", (req, res) => {
 
 //Add a second route for /urls:id
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: /* What goes here? */ };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
