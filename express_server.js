@@ -1,4 +1,4 @@
-//require express for the server
+//Require express for the server
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -16,9 +16,15 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//add additional endpoints
+//Add additional endpoints
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+//Add a route for /urls
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.get("/hello", (req, res) => {
