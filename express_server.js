@@ -62,6 +62,17 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//Redirect from the shortURL to the longURL
+app.get("/u/:id", (req, res) => {
+  // const longURL = ...
+  const longURL = urlDatabase[req.params.id];
+  if (longURL) {
+    res.redirect(urlDatabase[req.params.id]);
+  } else {
+    res.statusCode = 404;
+    res.send('<h3>404 Not Found!<h3>')
+  }});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
