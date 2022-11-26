@@ -12,6 +12,18 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Implement the function generateRandomString()
+function generateRandomString() {
+  let cSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let randomString = '';
+  const length = 6;
+  for (let i = 0; i < length; i++) {
+    const randomChar = Math.floor(Math.random() * cSet.length);
+    randomString += cSet[randomChar];
+  }
+  return randomString;
+};
+
 //When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body.
 app.use(express.urlencoded({ extended: true }));
 
