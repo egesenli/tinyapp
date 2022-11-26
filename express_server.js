@@ -45,8 +45,10 @@ app.get("/urls", (req, res) => {
 
 //Add a POST route to receive the form submission
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  //Generate a new short URL id, add it to the database and redirect to the /urls/shortURL.
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //Add a route for /urls/new
