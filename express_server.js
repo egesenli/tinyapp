@@ -51,11 +51,11 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-//Delete a url from database and redirect the client back to the urls_index page ("/urls")
-app.post('/urls/:id/delete', (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls');
-});
+  //Delete a url from database and redirect the client back to the urls_index page ("/urls")
+  app.post("/urls/:shortURL/delete", (req,res) => {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  });
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
