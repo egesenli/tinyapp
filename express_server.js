@@ -27,6 +27,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//Add a route for /urls/new
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 //Add a second route for /urls:id
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.shortURL] };
