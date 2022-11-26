@@ -51,29 +51,36 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+//Add a route for /urls/new
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+  //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
+  app.post('/urls/:shortURL', (req, res) => {
+    const shortURL = req.params.shortURL;
+    urlDatabase[shortURL] = req.body.longURL;
+    res.redirect(`/urls/${shortURL}`);
+  });
+
   //Delete a url from database and redirect the client back to the urls_index page ("/urls")
   app.post("/urls/:shortURL/delete", (req,res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   });
 
-//Add a route for /urls/new
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
 //Add a second route for /urls:id
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.shortURL] };
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
 //Redirect from the shortURL to the longURL
-app.get("/u/:id", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
   // const longURL = ...
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.shortURL];
   if (longURL) {
-    res.redirect(urlDatabase[req.params.id]);
+    res.redirect(urlDatabase[req.params.shortURL]);
   } else {
     res.statusCode = 404;
     res.send('<h3>404 Not Found!<h3>')
