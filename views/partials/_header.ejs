@@ -18,6 +18,11 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <% if(username) { %>
+      <a class = "navbar-brand">
+        <%= username %>
+      </a>
+      <% } %>
     <form class="form-inline" action="/login" method="POST">
       <input
         class="form-control"
