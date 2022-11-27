@@ -55,7 +55,8 @@ app.post("/urls", (req, res) => {
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {username: req.cookies['username']};
+  res.render('urls_new', templateVars);
 });
 
   //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
@@ -79,7 +80,7 @@ app.get("/urls/new", (req, res) => {
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username'] };
   res.render("urls_show", templateVars);
 });
 
