@@ -55,28 +55,34 @@ app.post("/urls", (req, res) => {
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies['username']};
+  const templateVars = { username: req.cookies['username'] };
   res.render('urls_new', templateVars);
 });
 
-  //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
-  app.post('/urls/:shortURL', (req, res) => {
-    const shortURL = req.params.shortURL;
-    urlDatabase[shortURL] = req.body.longURL;
-    res.redirect(`/urls/${shortURL}`);
-  });
+//Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
+app.post('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
 
-  //Delete a url from database and redirect the client back to the urls_index page ("/urls")
-  app.post("/urls/:shortURL/delete", (req,res) => {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect("/urls");
-  });
+//Delete a url from database and redirect the client back to the urls_index page ("/urls")
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+});
 
-    //Set a cookie named username to the value submitted in the request body via the login form. After the server has set the cookie it redirects the browser back to the /urls page
-    app.post("/login", (req,res) => {
-      res.cookie('username', req.body.username);
-      res.redirect("/urls");
-    });
+//Set a cookie named username to the value submitted in the request body via the login form. After the server has set the cookie it redirects the browser back to the /urls page
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
+//Logout and clear cookie
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+})
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
@@ -93,7 +99,8 @@ app.get("/u/:shortURL", (req, res) => {
   } else {
     res.statusCode = 404;
     res.send('<h3>404 Not Found!<h3>')
-  }});
+  }
+});
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
@@ -102,11 +109,11 @@ app.get("/hello", (req, res) => {
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
+});
+
+app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
- });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
