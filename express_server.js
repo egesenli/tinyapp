@@ -14,6 +14,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+
 //Implement the function generateRandomString()
 function generateRandomString() {
   let cSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -63,6 +77,15 @@ app.get("/urls/new", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = { username: req.cookies['username'] };
   res.render('urls_registration', templateVars);
+});
+
+//Add a POST route to registering
+app.post("/register", (req, res) => {
+  //Generate a new short URL id, add it to the database and redirect to the /urls/shortURL.
+  const userID = `user${generateRandomString()}`;
+  users[userID] = {id: userID, email: req.body.email, password: req.body.password};
+  res.cookie('user_id', userID);
+  res.redirect(`/urls`);
 });
 
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
