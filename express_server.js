@@ -59,6 +59,12 @@ app.get("/urls/new", (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+//Add a route for /urls/register
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies['username'] };
+  res.render('urls_registration', templateVars);
+});
+
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
