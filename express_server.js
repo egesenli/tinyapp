@@ -55,7 +55,7 @@ app.get("/urls.json", (req, res) => {
 
 //Add a route for /urls
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
+  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
   res.render("urls_index", templateVars);
 });
 
@@ -69,13 +69,13 @@ app.post("/urls", (req, res) => {
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies['username'] };
+  const templateVars = { user: users[req.cookies['user_id']] };
   res.render('urls_new', templateVars);
 });
 
 //Add a route for /urls/register
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies['username'] };
+  const templateVars = { user: users[req.cookies['user_id']] };
   res.render('urls_registration', templateVars);
 });
 
@@ -102,10 +102,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 //Set a cookie named username to the value submitted in the request body via the login form. After the server has set the cookie it redirects the browser back to the /urls page
-app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect("/urls");
-});
+// app.post("/login", (req, res) => {
+//   res.cookie('username', req.body.username);
+//   res.redirect("/urls");
+// });
 
 //Logout and clear cookie
 app.post('/logout', (req, res) => {
@@ -115,7 +115,7 @@ app.post('/logout', (req, res) => {
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username'] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']] };
   res.render("urls_show", templateVars);
 });
 
