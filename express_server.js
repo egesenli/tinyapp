@@ -29,10 +29,11 @@ function generateRandomString() {
   return randomString;
 };
 
-function checkEmail(userMail) {
+//Check email exists in database
+function checkData(userMail) {
   for (const user in users) {
     if (users[user].email === userMail) {
-      return true;
+      return users[user];
     }
   }
   return false;
@@ -79,17 +80,13 @@ app.get("/register", (req, res) => {
 
 //Add a POST route to registering
 app.post("/register", (req, res) => {
-  //Generate a new short URL id, add it to the database and redirect to the /urls/shortURL.
-  // const userID = `user${generateRandomString()}`;
-  // users[userID] = {id: userID, email: req.body.email, password: req.body.password};
   if (req.body.email && req.body.password) {
-    if (checkEmail(req.body.email)) {
+    if (checkData(req.body.email)) {
       res.statusCode = 400;
       res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>')
     } else {
       const userID = `user${generateRandomString()}`;
-      users[userID] = {id: userID, email: req.body.email, password: req.body.password};
-      console.log(users);
+      users[userID] = { id: userID, email: req.body.email, password: req.body.password };
       res.cookie('user_id', userID);
       res.redirect(`/urls`);
     }
@@ -120,7 +117,22 @@ app.get("/login", (req, res) => {
 
 //Add a POST route for the submitting the form
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  const user = checkData(req.body.email);
+  if (req.body.email && req.body.password) {
+    if (!checkData(req.body.email)) {
+      res.statusCode = 403;
+      res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
+    } else if (req.body.password === user.password) {
+      res.cookie('user_id', user.id);
+      res.redirect('/urls');
+    } else {
+      res.statusCode = 403;
+      res.send('<h2>Error status 403. The password is not correct. Please check your information and try again.')
+    }
+  } else {
+    res.statusCode = 403;
+    res.send('<h2>Error status 403. Please fill out all fields for login.</h2>')
+  }
 });
 
 //Logout and clear cookie
