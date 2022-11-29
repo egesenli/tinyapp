@@ -14,18 +14,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
+const users = {};
 
 
 //Implement the function generateRandomString()
@@ -39,6 +28,15 @@ function generateRandomString() {
   }
   return randomString;
 };
+
+function checkEmail(userMail) {
+  for (const user in users) {
+    if (users[user].email === userMail) {
+      return true;
+    }
+  }
+  return false;
+}
 
 //When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body.
 app.use(express.urlencoded({ extended: true }));
@@ -82,10 +80,23 @@ app.get("/register", (req, res) => {
 //Add a POST route to registering
 app.post("/register", (req, res) => {
   //Generate a new short URL id, add it to the database and redirect to the /urls/shortURL.
-  const userID = `user${generateRandomString()}`;
-  users[userID] = {id: userID, email: req.body.email, password: req.body.password};
-  res.cookie('user_id', userID);
-  res.redirect(`/urls`);
+  // const userID = `user${generateRandomString()}`;
+  // users[userID] = {id: userID, email: req.body.email, password: req.body.password};
+  if (req.body.email && req.body.password) {
+    if (checkEmail(req.body.email)) {
+      res.statusCode = 400;
+      res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>')
+    } else {
+      const userID = `user${generateRandomString()}`;
+      users[userID] = {id: userID, email: req.body.email, password: req.body.password};
+      console.log(users);
+      res.cookie('user_id', userID);
+      res.redirect(`/urls`);
+    }
+  } else {
+    res.statusCode = 400;
+    res.send('<h2>Error status 400. Please fill out all fields for registering.</h2>')
+  }
 });
 
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
@@ -109,7 +120,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Logout and clear cookie
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 })
 
