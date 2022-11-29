@@ -1,15 +1,8 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -18,34 +11,22 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if(!username) { %>
-      <form class="form-inline" action="/login" method="POST">
-        <input
-          class="form-control"
-          type="text"
-          name="username"
-          placeholder="Username"
-          style="width: 300px; margin: 1em"
-        />
-        <button type="submit" class="btn btn-outline-dark">Login</button>
-    </form>
-      <a class = "navbar-brand">
-        <%= username %>
-      </a>
+    <% if(!user) { %>
+      <div>
+        <a href="/login">
+          <button class="btn btn-dark">Login</button>
+        </a>
+        <a href="/register">
+          <button class="btn btn-dark">Register</button>
+        </a>
+      </div>
       <% } else { %>
-        <a class = "navbar-brand">
-          Logged in as:  <%= username %>
+        <a class="navbar-brand">
+          Logged in as: <%= user.email %>
         </a>
         <form class="form-inline" action="/logout" method="POST">
-          <input
-            class="form-control"
-            type="text"
-            name="username"
-            placeholder="Username"
-            style="width: 300px; margin: 1em"
-          />
           <button type="submit" class="btn btn-outline-dark">Logout</button>
-      </form>
+        </form>
         <% } %>
   </nav>
 </header>
