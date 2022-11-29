@@ -15,16 +15,14 @@
       <a href="/login">
         <button class="btn btn-outline-dark">Login</button>
       </a>
-        <a href="/register">
-          <button class="btn btn-outline-dark">Register</button>
-        </a>
+      <a href="/register">
+        <button class="btn btn-outline-dark">Register</button>
+      </a>
       <% } else { %>
         <a class="navbar-brand">
           Logged in as: <%= user.email %>
         </a>
         <form class="form-inline" action="/logout" method="POST">
-          <input class="form-control" type="text" name="username" placeholder="Username"
-            style="width: 300px; margin: 1em" />
           <button type="submit" class="btn btn-outline-dark">Logout</button>
         </form>
         <% } %>
