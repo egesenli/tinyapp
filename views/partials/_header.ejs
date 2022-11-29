@@ -12,12 +12,14 @@
       </div>
     </div>
     <% if(!user) { %>
-      <a href="/login">
-        <button class="btn btn-outline-dark">Login</button>
-      </a>
-      <a href="/register">
-        <button class="btn btn-outline-dark">Register</button>
-      </a>
+      <div>
+        <a href="/login">
+          <button class="btn btn-dark">Login</button>
+        </a>
+        <a href="/register">
+          <button class="btn btn-dark">Register</button>
+        </a>
+      </div>
       <% } else { %>
         <a class="navbar-brand">
           Logged in as: <%= user.email %>
