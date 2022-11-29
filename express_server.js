@@ -3,19 +3,21 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+//Require cookie-parser for the cookies
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 //This tells the Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
 
+//URL database object for storing the URLS
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+//User object for storing the user information such as id, email and password,
 const users = {};
-
 
 //Implement the function generateRandomString()
 function generateRandomString() {
@@ -29,7 +31,7 @@ function generateRandomString() {
   return randomString;
 };
 
-//Check email exists in database
+//Check user information exists in database
 function checkData(userMail) {
   for (const user in users) {
     if (users[user].email === userMail) {
@@ -39,7 +41,7 @@ function checkData(userMail) {
   return false;
 }
 
-//When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body.
+//When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -58,9 +60,8 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-//Add a POST route to receive the form submission
+//Add a POST route to receive the form submission. Generate a new short URL id, add it to the database and redirect to the /urls/shortURL
 app.post("/urls", (req, res) => {
-  //Generate a new short URL id, add it to the database and redirect to the /urls/shortURL.
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
@@ -78,7 +79,7 @@ app.get("/register", (req, res) => {
   res.render('urls_registration', templateVars);
 });
 
-//Add a POST route to registering
+//Add a POST route to registering form
 app.post("/register", (req, res) => {
   if (req.body.email && req.body.password) {
     if (checkData(req.body.email)) {
@@ -115,7 +116,7 @@ app.get("/login", (req, res) => {
   res.render('urls_login', templateVars);
 });
 
-//Add a POST route for the submitting the form
+//Add a POST route for the login form
 app.post("/login", (req, res) => {
   const user = checkData(req.body.email);
   if (req.body.email && req.body.password) {
@@ -157,19 +158,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.statusCode = 404;
     res.send('<h3>404 Not Found!<h3>')
   }
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
 });
 
 app.listen(PORT, () => {
