@@ -7,6 +7,9 @@ const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+//Require bcryptjs for the encryption of passwords
+const bcrypt = require("bcryptjs");
+
 //This tells the Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
 
@@ -64,7 +67,7 @@ app.get("/", (req, res) => {
 
 //Add additional endpoints
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  res.json(users);
 });
 
 //Add a route for /urls
@@ -117,7 +120,7 @@ app.post("/register", (req, res) => {
       res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>')
     } else {
       const userID = `user${generateRandomString()}`;
-      users[userID] = { id: userID, email: req.body.email, password: req.body.password };
+      users[userID] = { id: userID, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
       res.cookie('user_id', userID);
       res.redirect(`/urls`);
     }
@@ -178,7 +181,7 @@ app.post("/login", (req, res) => {
     if (!checkData(req.body.email)) {
       res.statusCode = 403;
       res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
-    } else if (req.body.password === user.password) {
+    } else if (bcrypt.compareSync(req.body.password, user.password)) {
       res.cookie('user_id', user.id);
       res.redirect('/urls');
     } else {
