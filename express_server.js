@@ -41,6 +41,19 @@ function checkData(userMail) {
   return false;
 }
 
+//Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged-in user
+const urlsForUser = (id) => {
+
+  let userURL = {};
+
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURL[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURL;
+};
+
 //When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body
 app.use(express.urlencoded({ extended: true }));
 
@@ -56,7 +69,9 @@ app.get("/urls.json", (req, res) => {
 
 //Add a route for /urls
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  const userID = req.cookies['user_id'];
+  const userURL = urlsForUser(userID);
+  let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
   res.render("urls_index", templateVars);
 });
 
@@ -113,15 +128,36 @@ app.post("/register", (req, res) => {
 });
 
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
+//Handle the errors and permissions
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
+  if (!req.cookies['user_id']) {
+    return res.status(400).send('Error status 400. There is no cookie.')
+  }
+  if (!urlDatabase[shortURL]) {
+    return res.status(400).send('Error status 400. There shortURL does not exists.')
+  }
+  if (req.cookies['user_id'] !== urlDatabase[shortURL].userID) {
+    return res.status(400).send('Error status 400. You\'re not authorized.')
+  } 
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
 //Delete a url from database and redirect the client back to the urls_index page ("/urls")
+//Handle the errors and permissions
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const shortURL = req.params.shortURL;
+  if (!req.cookies['user_id']) {
+    return res.status(400).send('Error status 400. There is no cookie.')
+  }
+  if (!urlDatabase[shortURL]) {
+    return res.status(400).send('Error status 400. There shortURL does not exists.')
+  }
+  if (req.cookies['user_id'] !== urlDatabase[shortURL].userID) {
+    return res.status(400).send('Error status 400. You\'re not authorized.')
+  }
+  delete urlDatabase[shortURL];
   res.redirect("/urls");
 });
 
@@ -163,7 +199,9 @@ app.post('/logout', (req, res) => {
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies['user_id']] };
+  const userID = req.cookies['user_id'];
+  const userURL = urlsForUser(userID);
+  let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
   res.render("urls_show", templateVars);
 });
 
