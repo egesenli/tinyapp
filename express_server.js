@@ -12,8 +12,8 @@ app.set("view engine", "ejs");
 
 //URL database object for storing the URLS
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  // "b2xVn2": "http://www.lighthouselabs.ca",
+  // "9sm5xK": "http://www.google.com"
 };
 
 //User object for storing the user information such as id, email and password,
@@ -62,21 +62,36 @@ app.get("/urls", (req, res) => {
 
 //Add a POST route to receive the form submission. Generate a new short URL id, add it to the database and redirect to the /urls/shortURL
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  if (req.cookies['user_id']) {
+    const shortURL = generateRandomString();
+    urlDatabase[shortURL] = {
+      longURL: req.body.longURL,
+      userID: req.cookies['user_id']
+    };
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.statusCode = 403;
+    res.send('<h2>Error status 403. You are not logged in! Please login first.</h2>')  }
 });
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render('urls_new', templateVars);
+  if (req.cookies['user_id']) {
+    let templateVars = { user: users[req.cookies['user_id']] };
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 //Add a route for /register
 app.get("/register", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render('urls_registration', templateVars);
+  if (req.cookies['user_id']) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = { user: users[req.cookies['user_id']] };
+    res.render('urls_registration', templateVars);
+  }
 });
 
 //Add a POST route to registering form
@@ -100,7 +115,7 @@ app.post("/register", (req, res) => {
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -112,8 +127,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Add a route for /login
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render('urls_login', templateVars);
+  if (req.cookies['user_id']) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = { user: users[req.cookies['user_id']] };
+    res.render('urls_login', templateVars);
+  }
 });
 
 //Add a POST route for the login form
@@ -144,16 +163,16 @@ app.post('/logout', (req, res) => {
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies['user_id']] };
   res.render("urls_show", templateVars);
 });
 
 //Redirect from the shortURL to the longURL
 app.get("/u/:shortURL", (req, res) => {
   // const longURL = ...
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   if (longURL) {
-    res.redirect(urlDatabase[req.params.shortURL]);
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.statusCode = 404;
     res.send('<h3>404 Not Found!<h3>')
