@@ -13,6 +13,9 @@ app.use(cookieSession({
 //Require bcryptjs for the encryption of passwords
 const bcrypt = require("bcryptjs");
 
+//Require checkData function from helpers module
+const { checkData } = require('./helpers');
+
 //This tells the Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
 
@@ -37,15 +40,6 @@ function generateRandomString() {
   return randomString;
 };
 
-//Check user information exists in database
-function checkData(userMail) {
-  for (const user in users) {
-    if (users[user].email === userMail) {
-      return users[user];
-    }
-  }
-  return false;
-}
 
 //Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged-in user
 const urlsForUser = (id) => {
