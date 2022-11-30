@@ -173,7 +173,7 @@ app.get("/login", (req, res) => {
 
 //Add a POST route for the login form
 app.post("/login", (req, res) => {
-  const user = checkData(req.body.email);
+  const user = checkData(req.body.email, users);
   if (req.body.email && req.body.password) {
     if (!checkData(req.body.email, users)) {
       res.statusCode = 403;
