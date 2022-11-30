@@ -4,8 +4,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 //Require cookie-parser for the cookies
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['$2a$10$H2gsl1hYbldng7', 'AnE8BlzOmkUlGwoqSHUczlG'],
+}));
 
 //Require bcryptjs for the encryption of passwords
 const bcrypt = require("bcryptjs");
@@ -72,7 +75,7 @@ app.get("/urls.json", (req, res) => {
 
 //Add a route for /urls
 app.get("/urls", (req, res) => {
-  const userID = req.cookies['user_id'];
+  const userID = req.session.user_id;
   const userURL = urlsForUser(userID);
   let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
   res.render("urls_index", templateVars);
@@ -80,11 +83,11 @@ app.get("/urls", (req, res) => {
 
 //Add a POST route to receive the form submission. Generate a new short URL id, add it to the database and redirect to the /urls/shortURL
 app.post("/urls", (req, res) => {
-  if (req.cookies['user_id']) {
+  if (req.session.user_id) {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       longURL: req.body.longURL,
-      userID: req.cookies['user_id']
+      userID: req.session.user_id,
     };
     res.redirect(`/urls/${shortURL}`);
   } else {
@@ -94,8 +97,8 @@ app.post("/urls", (req, res) => {
 
 //Add a route for /urls/new
 app.get("/urls/new", (req, res) => {
-  if (req.cookies['user_id']) {
-    let templateVars = { user: users[req.cookies['user_id']] };
+  if (req.session.user_id) {
+    let templateVars = { user: users[req.session.user_id] };
     res.render('urls_new', templateVars);
   } else {
     res.redirect('/login');
@@ -104,10 +107,10 @@ app.get("/urls/new", (req, res) => {
 
 //Add a route for /register
 app.get("/register", (req, res) => {
-  if (req.cookies['user_id']) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
-    const templateVars = { user: users[req.cookies['user_id']] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render('urls_registration', templateVars);
   }
 });
@@ -121,7 +124,7 @@ app.post("/register", (req, res) => {
     } else {
       const userID = `user${generateRandomString()}`;
       users[userID] = { id: userID, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
-      res.cookie('user_id', userID);
+      req.session.user_id = userID;
       res.redirect(`/urls`);
     }
   } else {
@@ -134,13 +137,13 @@ app.post("/register", (req, res) => {
 //Handle the errors and permissions
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.status(400).send('Error status 400. There is no cookie.')
   }
   if (!urlDatabase[shortURL]) {
     return res.status(400).send('Error status 400. There shortURL does not exists.')
   }
-  if (req.cookies['user_id'] !== urlDatabase[shortURL].userID) {
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
     return res.status(400).send('Error status 400. You\'re not authorized.')
   } 
   urlDatabase[shortURL].longURL = req.body.longURL;
@@ -151,13 +154,13 @@ app.post('/urls/:shortURL', (req, res) => {
 //Handle the errors and permissions
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.status(400).send('Error status 400. There is no cookie.')
   }
   if (!urlDatabase[shortURL]) {
     return res.status(400).send('Error status 400. There shortURL does not exists.')
   }
-  if (req.cookies['user_id'] !== urlDatabase[shortURL].userID) {
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
     return res.status(400).send('Error status 400. You\'re not authorized.')
   }
   delete urlDatabase[shortURL];
@@ -166,10 +169,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Add a route for /login
 app.get("/login", (req, res) => {
-  if (req.cookies['user_id']) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
-    const templateVars = { user: users[req.cookies['user_id']] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render('urls_login', templateVars);
   }
 });
@@ -182,7 +185,7 @@ app.post("/login", (req, res) => {
       res.statusCode = 403;
       res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
     } else if (bcrypt.compareSync(req.body.password, user.password)) {
-      res.cookie('user_id', user.id);
+      req.session.user_id = user.id;
       res.redirect('/urls');
     } else {
       res.statusCode = 403;
@@ -196,13 +199,14 @@ app.post("/login", (req, res) => {
 
 //Logout and clear cookie
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  res.clearCookie('session');
+  res.clearCookie('session.sig');
   res.redirect('/urls');
 })
 
 //Add a second route for /urls:id
 app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.cookies['user_id'];
+  const userID = req.session.user_id;
   const userURL = urlsForUser(userID);
   let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
   res.render("urls_show", templateVars);
