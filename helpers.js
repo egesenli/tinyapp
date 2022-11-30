@@ -5,7 +5,7 @@ function checkData(userMail, users) {
       return users[user];
     }
   }
-  return false;
+  return undefined;
 }
 
 module.exports = { checkData };
