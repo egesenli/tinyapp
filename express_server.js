@@ -14,7 +14,7 @@ app.use(cookieSession({
 const bcrypt = require("bcryptjs");
 
 //Require checkData function from helpers module
-const { checkData } = require('./helpers');
+const { checkData } = require('./helpers.js');
 
 //This tells the Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
@@ -112,7 +112,7 @@ app.get("/register", (req, res) => {
 //Add a POST route to registering form
 app.post("/register", (req, res) => {
   if (req.body.email && req.body.password) {
-    if (checkData(req.body.email)) {
+    if (checkData(req.body.email, users)) {
       res.statusCode = 400;
       res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>')
     } else {
@@ -175,7 +175,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const user = checkData(req.body.email);
   if (req.body.email && req.body.password) {
-    if (!checkData(req.body.email)) {
+    if (!checkData(req.body.email, users)) {
       res.statusCode = 403;
       res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
     } else if (bcrypt.compareSync(req.body.password, user.password)) {
