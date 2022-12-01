@@ -86,7 +86,8 @@ app.post("/urls", (req, res) => {
     res.redirect(`/urls/${shortURL}`);
   } else {
     res.statusCode = 403;
-    res.send('<h2>Error status 403. You are not logged in! Please login first.</h2>')  }
+    res.send('<h2>Error status 403. You are not logged in! Please login first.</h2>');
+  }
 });
 
 //Add a route for /urls/new
@@ -114,7 +115,7 @@ app.post("/register", (req, res) => {
   if (req.body.email && req.body.password) {
     if (checkData(req.body.email, users)) {
       res.statusCode = 400;
-      res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>')
+      res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>');
     } else {
       const userID = `user${generateRandomString()}`;
       users[userID] = { id: userID, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
@@ -132,14 +133,14 @@ app.post("/register", (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   if (!req.session.user_id) {
-    return res.status(400).send('Error status 400. There is no cookie.')
+    return res.status(400).send('Error status 400. There is no cookie.');
   }
   if (!urlDatabase[shortURL]) {
-    return res.status(400).send('Error status 400. There shortURL does not exists.')
+    return res.status(400).send('Error status 400. There shortURL does not exists.');
   }
   if (req.session.user_id !== urlDatabase[shortURL].userID) {
-    return res.status(400).send('Error status 400. You\'re not authorized.')
-  } 
+    return res.status(400).send('Error status 400. You\'re not authorized.');
+  }
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
@@ -177,17 +178,17 @@ app.post("/login", (req, res) => {
   if (req.body.email && req.body.password) {
     if (!checkData(req.body.email, users)) {
       res.statusCode = 403;
-      res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
+      res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>');
     } else if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
       res.redirect('/urls');
     } else {
       res.statusCode = 403;
-      res.send('<h2>Error status 403. The password is not correct. Please check your information and try again.')
+      res.send('<h2>Error status 403. The password is not correct. Please check your information and try again.');
     }
   } else {
     res.statusCode = 403;
-    res.send('<h2>Error status 403. Please fill out all fields for login.</h2>')
+    res.send('<h2>Error status 403. Please fill out all fields for login.</h2>');
   }
 });
 
@@ -214,7 +215,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.statusCode = 404;
-    res.send('<h3>404 Not Found!<h3>')
+    res.send('<h3>404 Not Found!<h3>');
   }
 });
 
