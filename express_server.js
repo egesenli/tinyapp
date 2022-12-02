@@ -27,13 +27,19 @@ app.set("view engine", "ejs");
 
 //User object for storing the user information such as id, email and password,
 const users = {};
+const urlDatabase = {};
 
 //When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body
 app.use(express.urlencoded({ extended: true }));
 
+//if user is logged in, redirect to /urls. If user is not logged in, redirect to /login
+
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+  if (req.session.user_id) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }});
 
 //Add additional endpoints
 app.get("/urls.json", (req, res) => {
@@ -43,7 +49,7 @@ app.get("/urls.json", (req, res) => {
 //Add a route for /urls
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
-  const userURL = urlsForUser(userID);
+  const userURL = urlsForUser(userID, urlDatabase);
   let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
   res.render("urls_index", templateVars);
 });
@@ -85,10 +91,10 @@ app.get("/register", (req, res) => {
 
 //Add a POST route to registering form
 app.post("/register", (req, res) => {
+  const user = checkData(req.body.email, users);
   if (req.body.email && req.body.password) {
-    if (checkData(req.body.email, users)) {
-      res.statusCode = 400;
-      res.send('<h2>Error status 400. The email has already registered! Please use another email.</h2>');
+    if (user) {
+      return res.status(400).send('<h2>Error status 400. The email has already registered! Please use another email.</h2>');
     } else {
       const userID = `user${generateRandomString()}`;
       users[userID] = { id: userID, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
@@ -96,9 +102,17 @@ app.post("/register", (req, res) => {
       res.redirect(`/urls`);
     }
   } else {
-    res.statusCode = 400;
-    res.send('<h2>Error status 400. Please fill out all fields for registering.</h2>')
+    return res.status(400).send('<h2>Error status 400. Please fill out all fields for registering.</h2>');
   }
+});
+
+//Add a second route for /urls:id
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const userID = req.session.user_id;
+  const userURL = urlsForUser(userID, urlDatabase);
+  let templateVars = { urlDatabase, userURL, shortURL, user: users[userID] };
+  res.render("urls_show", templateVars);
 });
 
 //Edit a url from database and redirect the client to the urls_show page ("/urls/shortURL")
@@ -135,6 +149,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//Redirect from the shortURL to the longURL
+app.get("/u/:shortURL", (req, res) => {
+  // const longURL = ...
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  if (longURL) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.statusCode = 404;
+    res.send('<h3>404 Not Found!<h3>');
+  }
+});
+
 //Add a route for /login
 app.get("/login", (req, res) => {
   if (req.session.user_id) {
@@ -149,19 +175,16 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const user = checkData(req.body.email, users);
   if (req.body.email && req.body.password) {
-    if (!checkData(req.body.email, users)) {
-      res.statusCode = 403;
-      res.send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>');
+    if (!user) {
+      return res.status(403).send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
     } else if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
       res.redirect('/urls');
     } else {
-      res.statusCode = 403;
-      res.send('<h2>Error status 403. The password is not correct. Please check your information and try again.');
+      return res.status(403).send('<h2>Error status 403. The password is not correct. Please check your information and try again.')
     }
   } else {
-    res.statusCode = 403;
-    res.send('<h2>Error status 403. Please fill out all fields for login.</h2>');
+    return res.status(403).send('<h2>Error status 403. Please fill out all fields for login.</h2>')
   }
 });
 
@@ -171,26 +194,6 @@ app.post('/logout', (req, res) => {
   res.clearCookie('session.sig');
   res.redirect('/urls');
 })
-
-//Add a second route for /urls:id
-app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.session.user_id;
-  const userURL = urlsForUser(userID);
-  let templateVars = { urls: userURL, user: users[userID], shortURL: req.params.shortURL };
-  res.render("urls_show", templateVars);
-});
-
-//Redirect from the shortURL to the longURL
-app.get("/u/:shortURL", (req, res) => {
-  // const longURL = ...
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL) {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
-  } else {
-    res.statusCode = 404;
-    res.send('<h3>404 Not Found!<h3>');
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
