@@ -19,6 +19,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - bcryptjs
 - cookie-session
 
+## Developer Dependencies
+
+- Mocha & Chai
+- Nodemon
+
 ## Getting Started
 
 1) Install all dependencies (using the `npm install` command).
