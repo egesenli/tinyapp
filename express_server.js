@@ -16,47 +16,20 @@ const bcrypt = require("bcryptjs");
 //Require checkData function from helpers module
 const { checkData } = require('./helpers.js');
 
+//Require urlsForUser function from helpers module
+const { urlsForUser } = require('./helpers.js');
+
+//Require urlsForUser function from helpers module
+const { generateRandomString } = require('./helpers.js');
+
 //This tells the Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
-
-//URL database object for storing the URLS
-const urlDatabase = {
-  // "b2xVn2": "http://www.lighthouselabs.ca",
-  // "9sm5xK": "http://www.google.com"
-};
 
 //User object for storing the user information such as id, email and password,
 const users = {};
 
-//Implement the function generateRandomString()
-function generateRandomString() {
-  let cSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = '';
-  const length = 6;
-  for (let i = 0; i < length; i++) {
-    const randomChar = Math.floor(Math.random() * cSet.length);
-    randomString += cSet[randomChar];
-  }
-  return randomString;
-};
-
-
-//Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged-in user
-const urlsForUser = (id) => {
-
-  let userURL = {};
-
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userURL[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userURL;
-};
-
 //When our browser submits a POST request, the data in the request body is sent as a Buffer. To make this data readable, we need to use another piece of middleware to translate or parse the body
 app.use(express.urlencoded({ extended: true }));
-
 
 app.get("/", (req, res) => {
   res.send("Hello!");
