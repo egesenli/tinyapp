@@ -9,7 +9,7 @@ function checkData(userMail, users) {
 }
 
 //Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged-in user
-function urlsForUser (id, users) {
+function urlsForUser(id, users) {
 
   let userURL = {};
 

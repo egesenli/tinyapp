@@ -39,7 +39,8 @@ app.get("/", (req, res) => {
     res.redirect('/urls');
   } else {
     res.redirect('/login');
-  }});
+  }
+});
 
 //Add additional endpoints
 app.get("/urls.json", (req, res) => {
@@ -137,13 +138,13 @@ app.post('/urls/:shortURL', (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!req.session.user_id) {
-    return res.status(400).send('Error status 400. There is no cookie.')
+    return res.status(400).send('Error status 400. There is no cookie.');
   }
   if (!urlDatabase[shortURL]) {
-    return res.status(400).send('Error status 400. There shortURL does not exists.')
+    return res.status(400).send('Error status 400. There shortURL does not exists.');
   }
   if (req.session.user_id !== urlDatabase[shortURL].userID) {
-    return res.status(400).send('Error status 400. You\'re not authorized.')
+    return res.status(400).send('Error status 400. You\'re not authorized.');
   }
   delete urlDatabase[shortURL];
   res.redirect("/urls");
@@ -176,15 +177,15 @@ app.post("/login", (req, res) => {
   const user = checkData(req.body.email, users);
   if (req.body.email && req.body.password) {
     if (!user) {
-      return res.status(403).send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>')
+      return res.status(403).send('<h2>Error status 403. The email has is not registered! Please sign up.</h2>');
     } else if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
       res.redirect('/urls');
     } else {
-      return res.status(403).send('<h2>Error status 403. The password is not correct. Please check your information and try again.')
+      return res.status(403).send('<h2>Error status 403. The password is not correct. Please check your information and try again.');
     }
   } else {
-    return res.status(403).send('<h2>Error status 403. Please fill out all fields for login.</h2>')
+    return res.status(403).send('<h2>Error status 403. Please fill out all fields for login.</h2>');
   }
 });
 
