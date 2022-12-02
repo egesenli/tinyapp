@@ -13,11 +13,11 @@
   <%- include('partials/_header') %>
 
   <% if (user) { %>
-    <% if (urls[shortURL]) { %>
+    <% if (userURL[shortURL]) { %>
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= urls[shortURL].longURL %></h5>
+        <h5 class="card-title">TinyURL for: <%= userURL[shortURL].longURL %></h5>
         <p class="card-text">
           Short URL: <a href="/u/<%= shortURL %>">
             <%= shortURL %>
