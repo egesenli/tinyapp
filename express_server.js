@@ -153,9 +153,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //Redirect from the shortURL to the longURL
 app.get("/u/:shortURL", (req, res) => {
   // const longURL = ...
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL) {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  const urlInfo = urlDatabase[req.params.shortURL];
+  if (urlInfo) {
+    const longURL = urlInfo.longURL;
+    res.redirect(urlInfo.longURL);
   } else {
     res.statusCode = 404;
     res.send('<h3>404 Not Found!<h3>');
