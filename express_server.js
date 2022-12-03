@@ -155,7 +155,6 @@ app.get("/u/:shortURL", (req, res) => {
   // const longURL = ...
   const urlInfo = urlDatabase[req.params.shortURL];
   if (urlInfo) {
-    const longURL = urlInfo.longURL;
     res.redirect(urlInfo.longURL);
   } else {
     res.statusCode = 404;
